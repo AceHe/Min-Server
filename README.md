@@ -3,6 +3,15 @@
 - Min-Admin(开发中)
 - [Min-Server](https://github.com/AceHe/Min-Server)
 
+### 项目说明
+**Nodejs+Express+MongoDB 快速搭建 restful 风格的 api**
+
+- **express**: nodejs框架
+- **mongoose**: 用来方便的和mongodb交互
+- **body-parser**: 方便我们从post请求中解析参数
+- **morgan**: 把请求信息打印在控
+- **jsonwebtoken**: 用来生成和确认token数据制台
+
 ### 使用说明
 1. 克隆项目到本地
 ```
@@ -18,9 +27,7 @@
 ```
 
 ### 项目进度
-未完成
-
-### 项目说明
+正在开发中
 
 ### 项目目录
 ```
@@ -58,3 +65,4 @@ Min-Server/
 ```
 
 ### API数据结构
+**TODO**
