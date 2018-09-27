@@ -3,7 +3,7 @@
 
 ### 博客接口开发
 - Min-Blog(开发中)
-- Min-Admin(开发中)
+- Min-Admin(https://github.com/AceHe/Min-Admin)
 - [Min-Server](https://github.com/AceHe/Min-Server)
 
 ### 项目说明
