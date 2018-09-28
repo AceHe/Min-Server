@@ -12,4 +12,7 @@ app.use('/user', userRoute);
 var categorizedRoute = require('./app/routes/categorized');
 app.use('/blog', categorizedRoute);
 
+var tagRoute = require('./app/routes/tag');
+app.use('/blog', tagRoute);
+
 module.exports = app;
