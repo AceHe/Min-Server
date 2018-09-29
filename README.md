@@ -52,7 +52,7 @@ Min-Server/
    │
    ├──node_modules/              * 依赖环境安装后生成(npm install后自动生成)
    │
-   ├──.gitignore 				 * git push 忽略文件
+   ├──.gitignore                 * git push 忽略文件
    │
    ├──config.js                  * 一些配置
    │

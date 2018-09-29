@@ -32,7 +32,7 @@ router.post('/category',function(req,res){
 		// 如果无此分类 则向数组 push 新分类
 		else {
 			let newCate = {
-				"id" : 3,
+				"id" : Date.parse(new Date)/1000,
 				"cate" : req.body.category,
 				"articleNum" : 0,
 			}
@@ -50,7 +50,7 @@ router.post('/category',function(req,res){
 
 // 删除分类
 router.delete('/category',function(req, res){
-	Categorized.remove({ cate: req.body.category }, function(err, result){
+	Categorized.remove({ id: req.body.id }, function(err, result){
 		res.json({
 			code: 0,
 			message: '删除成功',
@@ -61,9 +61,8 @@ router.delete('/category',function(req, res){
 
 // 修改分类
 router.put('/category',function(req, res){
-	console.log( req.body.oldcate, req.body.newcate )
 	Categorized.update( 
-		{cate: req.body.oldcate},
+		{id: req.body.id},
 		{$set: {cate: req.body.newcate}},
 		function(err, result){
 			res.json({
@@ -76,7 +75,7 @@ router.put('/category',function(req, res){
 
 // 获取全部分类
 router.get('/category',function(req,res){
-    Categorized.find({},"-_id",function(err, result){
+    Categorized.find({},"-_id -__v",function(err, result){
         res.json({
             code: 0,
             data: result,

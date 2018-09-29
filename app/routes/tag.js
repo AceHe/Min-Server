@@ -1,6 +1,6 @@
 var express = require('express');
 var app = express();    //定义app
-var Tag = require("../module/tag")
+var Tag = require("../module/tag");
 
 var router = express.Router();
 
@@ -32,7 +32,7 @@ router.post('/tag',function(req,res){
 		// 如果无此标签 则向数组 push 新标签
 		else {
 			let newTag = {
-				"id" : 3,
+				"id" : Date.parse(new Date)/1000,
 				"tag" : req.body.tag,
 				"articleNum" : 0,
 			}
@@ -50,7 +50,7 @@ router.post('/tag',function(req,res){
 
 // 删除标签
 router.delete('/tag',function(req, res){
-	Tag.remove({ tag: req.body.tag }, function(err, result){
+	Tag.remove({ id: req.body.id }, function(err, result){
 		res.json({
 			code: 0,
 			message: '删除成功',
@@ -62,7 +62,7 @@ router.delete('/tag',function(req, res){
 // 修改标签
 router.put('/tag',function(req, res){
 	Tag.update( 
-		{tag: req.body.oldtag},
+		{id: req.body.id},
 		{$set: {tag: req.body.newtag}},
 		function(err, result){
 			res.json({
@@ -75,7 +75,7 @@ router.put('/tag',function(req, res){
 
 // 获取全部标签
 router.get('/tag',function(req,res){
-    Tag.find({},"-_id",function(err, result){
+    Tag.find({},"-_id -__v",function(err, result){
         res.json({
             code: 0,
             data: result,
