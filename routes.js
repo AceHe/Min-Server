@@ -10,7 +10,7 @@ var userRoute = require('./app/routes/user');
 app.use('/user', userRoute);
 
 //博客分类 增删改查
-var categorizedRoute = require('./app/routes/categorized');
+var categorizedRoute = require('./app/routes/category');
 app.use('/blog', categorizedRoute);
 
 //博客标签 增删改查

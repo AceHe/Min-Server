@@ -1,24 +1,24 @@
 var express = require('express');
 var app = express();    //定义app
-var Tag = require("../module/tag")
+var Categorized = require("../module/category")
 
 var router = express.Router();
 
-// 添加新标签
-router.post('/tag',function(req,res){
+// 添加新分类
+router.post('/category',function(req,res){
 	// 数据验证
-	if( req.body.tag == '' || req.body.tag.length > 15 ){
+	if( req.body.category == '' || req.body.category.length > 20 ){
 		res.json({
 			code: 1,
-    		message: "标签名称不合法，请重新输入",
+    		message: "分类名称不合法，请重新输入",
     		success: true
 		})
 		return;
 	}
 
 
-	// 首先查找数据库是不是有此标签
-	Tag.find({ tag: req.body.tag }, function(err, result){
+	// 首先查找数据库是不是有此分类
+	Categorized.find({ cate: req.body.category }, function(err, result){
 		// 如果有此标签 则返回无法添加
 		if( result.length > 0 ){
 			res.json({
@@ -29,14 +29,14 @@ router.post('/tag',function(req,res){
     		})
 		}
 
-		// 如果无此标签 则向数组 push 新标签
+		// 如果无此分类 则向数组 push 新分类
 		else {
-			let newTag = {
+			let newCate = {
 				"id" : 3,
-				"tag" : req.body.tag,
+				"cate" : req.body.category,
 				"articleNum" : 0,
 			}
-			Tag.create( newTag, function(err, result){
+			Categorized.create( newCate, function(err, result){
 				res.json({
 					code: 0,
 					message: '成功添加标签',
@@ -48,9 +48,9 @@ router.post('/tag',function(req,res){
 	})
 })
 
-// 删除标签
-router.delete('/tag',function(req, res){
-	Tag.remove({ tag: req.body.tag }, function(err, result){
+// 删除分类
+router.delete('/category',function(req, res){
+	Categorized.remove({ cate: req.body.category }, function(err, result){
 		res.json({
 			code: 0,
 			message: '删除成功',
@@ -59,11 +59,12 @@ router.delete('/tag',function(req, res){
 	})
 })
 
-// 修改标签
-router.put('/tag',function(req, res){
-	Tag.update( 
-		{tag: req.body.oldtag},
-		{$set: {tag: req.body.newtag}},
+// 修改分类
+router.put('/category',function(req, res){
+	console.log( req.body.oldcate, req.body.newcate )
+	Categorized.update( 
+		{cate: req.body.oldcate},
+		{$set: {cate: req.body.newcate}},
 		function(err, result){
 			res.json({
 				code: 0,
@@ -73,9 +74,9 @@ router.put('/tag',function(req, res){
 		})
 })
 
-// 获取全部标签
-router.get('/tag',function(req,res){
-    Tag.find({},"-_id",function(err, result){
+// 获取全部分类
+router.get('/category',function(req,res){
+    Categorized.find({},"-_id",function(err, result){
         res.json({
             code: 0,
             data: result,
