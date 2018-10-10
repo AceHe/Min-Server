@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express();    //定义app
-var Categorized = require("../module/category")
+var Categorized = require("../module/category");
+var eventproxy = require('eventproxy'); //控制并发
 
 var router = express.Router();
 
@@ -74,15 +75,35 @@ router.put('/category',function(req, res){
 })
 
 // 获取全部分类
-router.get('/category',function(req,res){
-    Categorized.find({},"-_id -__v",function(err, result){
-        res.json({
+router.post('/categorybypage',function(req,res){
+
+    // 得到一个 eventproxy 实例
+	var ep = new eventproxy();
+
+	// 获得总条目数
+	Categorized.count({}).exec(function(err, result){
+		ep.emit('total_event', result);
+	})
+
+	// 分页查询
+	Categorized.find({},{ _id:0, __v:0 })
+		.skip((req.body.page - 1) * req.body.limt)
+        .limit(req.body.limt)
+        .sort({'_id':-1})
+        .exec(function(err, result){
+        	ep.emit('data_event', result);
+        })
+
+    // 全部并发完成后，统一处理
+	ep.all('total_event', 'data_event', function (total, data) {
+		res.json({
             code: 0,
-            data: result,
+            data: data,
+            total: total,
             message: '操作成功',
             success: true,
         })
-    })
+	});
 })
 
 module.exports = router; //导出路由

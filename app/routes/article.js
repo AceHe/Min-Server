@@ -1,20 +1,9 @@
 var express = require('express');
 var app = express();    //定义app
-var Article = require("../module/article")
+var Article = require("../module/article");
+var eventproxy = require('eventproxy'); //控制并发
 
 var router = express.Router();
-
-// 获取全部文章
-router.get('/article',function(req,res){
-    Article.find({},"-_id",function(err, result){
-        res.json({
-            code: 0,
-            data: result,
-            message: '操作成功',
-            success: true,
-        })
-    })
-})
 
 // 获取指定文章
 router.post('/article/id',function(req,res){
@@ -76,6 +65,37 @@ router.put('/article',function(req, res){
 				success: true
 			})
 		})
+})
+
+// 获取全部文章
+router.post('/articlebypage',function(req,res){
+    // 得到一个 eventproxy 实例
+	var ep = new eventproxy();
+
+	// 获得总条目数
+	Article.count({}).exec(function(err, result){
+		ep.emit('total_event', result);
+	})
+
+	// 分页查询
+	Article.find({},{ _id:0, __v:0 })
+		.skip((req.body.page - 1) * req.body.limt)
+        .limit(req.body.limt)
+        .sort({'_id':-1})
+        .exec(function(err, result){
+        	ep.emit('data_event', result);
+        })
+
+    // 全部并发完成后，统一处理
+	ep.all('total_event', 'data_event', function (total, data) {
+		res.json({
+            code: 0,
+            data: data,
+            total: total,
+            message: '操作成功',
+            success: true,
+        })
+	});
 })
 
 module.exports = router; //导出路由

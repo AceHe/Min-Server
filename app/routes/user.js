@@ -14,6 +14,7 @@ router.post('/login',function(req,res){
     },function(err,user){   //登录验证
         if(err){
             res.json({
+                code: 1,
                 success: false,
                 message: "登录失败"
             });
@@ -21,18 +22,21 @@ router.post('/login',function(req,res){
 
         if(!user){
             res.json({
+                code: 1,
                 success: false,
                 message: "用户名找不到"
             });
         }else if(user){
             if(user.password != req.body.password){
                 res.json({
+                    code: 1,
                     success: false,
                     message: "密码错误"
                 });
             }else{
                 var token = jwt.sign({name:'foo'},app.get('superSecret'));//获取token
                 res.json({
+                    code: 0,
                     success: true,
                     message: "登录成功",
                     data: {
@@ -46,6 +50,7 @@ router.post('/login',function(req,res){
 
 router.post('/logout',function(req,res){
     res.json({
+        code: 0,
         success: true,
         message: "登出成功"
     });
@@ -60,6 +65,7 @@ router.get('/info',function(req,res){
         password: false
     },function(err, user){
         res.json({
+            code: 0,
             success: true,
             data: user
         })
