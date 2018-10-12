@@ -2,9 +2,8 @@ var express = require('express');
 var app = express();    //定义app
 var User = require("../module/user")
 
-var jwt = require('jsonwebtoken');      //用来创建和确认用户信息摘要
-var config = require('../../config');
-app.set('superSecret', config.secret);  // 设置app 的超级密码--用来生成摘要的密码
+var setToken = require('../../utils/setToken'); 
+var authToken = require('../../utils/authToken'); 
 
 var router = express.Router();
 
@@ -34,13 +33,12 @@ router.post('/login',function(req,res){
                     message: "密码错误"
                 });
             }else{
-                var token = jwt.sign({name:'foo'},app.get('superSecret'));//获取token
                 res.json({
                     code: 0,
                     success: true,
                     message: "登录成功",
                     data: {
-                        token: token
+                        token: setToken() // 设置token
                     }
                 });
             }
@@ -59,6 +57,15 @@ router.post('/logout',function(req,res){
 router.put('/',function(req,res){})
 
 router.get('/info',function(req,res){
+
+    if( !authToken(req.get("X-Token")) ){
+        return res.json({
+            code: 2,
+            success: false,
+            message: "身份验证失败, 多次异常操作后将会Block IP!"
+        })
+    }
+
     User.findOne({},{
         _id: false,
         __v: false,

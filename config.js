@@ -1,4 +1,7 @@
 module.exports = {
-    'secret':'zp,zp',    
-    'database':'mongodb://localhost:27017/blog'
+    'secret': 'zp,zp',
+    'port': 8080,
+    'database': 'mongodb://localhost:27017/blog'
+
+
 }
