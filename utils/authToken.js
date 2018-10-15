@@ -1,5 +1,5 @@
 function authToken( data ) {
-	if( data === global.tokenInfo ){
+	if( data === global.tokenInfo && data !== undefined ){
 		return true;
 	}else {
 		return false;

@@ -1,9 +1,8 @@
-var express = require('express');
-var app = express();    //定义app
-var Article = require("../module/article");
-var eventproxy = require('eventproxy'); //控制并发
+//控制并发
+var eventproxy = require('eventproxy'); 
 
-var router = express.Router();
+var Article = require("../module/article");
+var router = require('../../utils/request');
 
 // 获取指定文章
 router.post('/article/id',function(req,res){

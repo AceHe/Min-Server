@@ -1,9 +1,6 @@
-var express = require('express');
-var app = express();    //定义app
-var User = require("../module/user")
-var setToken = require('../../utils/setToken'); 
-
-var router = express.Router();
+var User = require("../module/user");
+var router = require('../../utils/request');
+var setToken = require('../../utils/setToken');
 
 // 登录
 router.post('/login',function(req,res){

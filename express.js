@@ -2,7 +2,6 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
 var config = require('./config');
-var authToken = require('./utils/authToken'); 
 
 var app = express();
 
@@ -14,19 +13,6 @@ app.all('*', function(req, res, next) {
     res.header("Content-Type", "application/json;charset=utf-8");
 
 	next();
-});
-
-// 请求拦截
-app.use(function (req, res, next) {
-	if( !authToken(req.get("X-Token")) ){
-		return res.json({
-			code: 2,
-			success: false,
-			message: "身份验证失败, 多次异常操作后将会Block IP!"
-		})
-	}else{
-		next();
-	}
 });
 
 //用 bodyParser 来解析post和url信息中的参数

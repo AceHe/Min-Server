@@ -1,9 +1,8 @@
-var express = require('express');
-var app = express();    //定义app
-var Categorized = require("../module/category");
-var eventproxy = require('eventproxy'); //控制并发
+ //控制并发
+var eventproxy = require('eventproxy');
 
-var router = express.Router();
+var Categorized = require("../module/category");
+var router = require('../../utils/request');
 
 // 添加新分类
 router.post('/category',function(req,res){

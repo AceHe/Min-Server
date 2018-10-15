@@ -1,9 +1,8 @@
-var express = require('express');
-var app = express();    //定义app
-var Tag = require("../module/tag");
-var eventproxy = require('eventproxy'); //控制并发
+//控制并发
+var eventproxy = require('eventproxy');
 
-var router = express.Router();
+var Tag = require("../module/tag");
+var router = require('../../utils/request');
 
 // 添加新标签
 router.post('/tag',function(req,res){
