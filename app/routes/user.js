@@ -1,12 +1,11 @@
 var express = require('express');
 var app = express();    //定义app
 var User = require("../module/user")
-
 var setToken = require('../../utils/setToken'); 
-var authToken = require('../../utils/authToken'); 
 
 var router = express.Router();
 
+// 登录
 router.post('/login',function(req,res){
     User.findOne({
         name: req.body.name //根据用户输入用户名进行匹配
@@ -46,7 +45,9 @@ router.post('/login',function(req,res){
     })
 })
 
+// 登出
 router.post('/logout',function(req,res){
+    global.tokenInfo = '';
     res.json({
         code: 0,
         success: true,
@@ -54,18 +55,8 @@ router.post('/logout',function(req,res){
     });
 })
 
-router.put('/',function(req,res){})
-
+// 获取用户信息
 router.get('/info',function(req,res){
-
-    if( !authToken(req.get("X-Token")) ){
-        return res.json({
-            code: 2,
-            success: false,
-            message: "身份验证失败, 多次异常操作后将会Block IP!"
-        })
-    }
-
     User.findOne({},{
         _id: false,
         __v: false,
