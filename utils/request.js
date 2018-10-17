@@ -10,21 +10,21 @@ function getClientIp(req) {
     req.connection.socket.remoteAddress;
 };
 
-// 拦截白名单
-var whiteList = ['/user/login'];
+// 路径白名单
+var whiteList = ['/api/user/login'];
 
 // 请求拦截
 router.use(function (req, res, next) {
     // 判断该请求是否需要验证token
     var isAuthToken = true;
-    if( whiteList.indexOf( req.originalUrl ) !== -1){
+    if( req.method === 'OPTIONS' || whiteList.indexOf( req.originalUrl ) !== -1){
         isAuthToken = false;
     }
 
     // 验证 token
     if( isAuthToken && !authToken(req.get("X-Token")) ){
         return res.json({
-            code: 2,
+            code: 50012,
             success: false,
             data: {
                 'ip': getClientIp(req),
