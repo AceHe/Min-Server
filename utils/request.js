@@ -30,7 +30,7 @@ router.use(function (req, res, next) {
                 'ip': getClientIp(req),
                 'time': Date.now()
             },
-            message: "身份验证失败, 多次异常操作后将会Block IP!"
+            message: "身份验证失败, 请重新登陆!"
         })
     }else{
         next();

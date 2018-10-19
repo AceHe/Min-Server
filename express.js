@@ -2,17 +2,28 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
 var config = require('./config');
+var isOriginAllowed = require('./utils/allowOrigin');
 
 var app = express();
 
-//设置跨域访问
+//设置访问权限
 app.all('/api/*', function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "http://localhost:9528");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Authorization, Accept, X-Requested-With, X-Token");
-    res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
-    res.header("Content-Type", "application/json;charset=utf-8");
 
-	next();
+	var reqOrigin = req.headers.origin;
+
+	if( isOriginAllowed(reqOrigin, config.allowOrigin) ) {
+	    res.header("Access-Control-Allow-Origin", reqOrigin);
+	    res.header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Authorization, Accept, X-Requested-With, X-Token");
+	    res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
+	    res.header("Content-Type", "application/json;charset=utf-8");
+		next();        
+    } else {
+        res.send({ 
+        	code: -1,
+            success: false,
+        	msg: '非法请求!多次恶意请求将会Black IP!' 
+        });
+    }
 });
 
 //用 bodyParser 来解析post和url信息中的参数

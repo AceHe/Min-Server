@@ -9,7 +9,7 @@ router.post('/login',function(req,res){
     },function(err,user){   //登录验证
         if(err){
             res.json({
-                code: 1,
+                code: -1,
                 success: false,
                 message: "登录失败"
             });
@@ -17,14 +17,14 @@ router.post('/login',function(req,res){
 
         if(!user){
             res.json({
-                code: 1,
+                code: -1,
                 success: false,
                 message: "用户名找不到"
             });
         }else if(user){
             if(user.password != req.body.password){
                 res.json({
-                    code: 1,
+                    code: -1,
                     success: false,
                     message: "密码错误"
                 });

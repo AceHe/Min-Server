@@ -9,7 +9,7 @@ router.post('/category',function(req,res){
 	// 数据验证
 	if( req.body.category == '' || req.body.category.length > 20 ){
 		res.json({
-			code: 1,
+			code: -1,
     		message: "分类名称不合法，请重新输入",
     		success: true
 		})
@@ -22,7 +22,7 @@ router.post('/category',function(req,res){
 		// 如果有此标签 则返回无法添加
 		if( result.length > 0 ){
 			res.json({
-				code: 1,
+				code: -1,
 				data: result,
         		message: "已有此标签，无法添加",
         		success: true
