@@ -21,20 +21,23 @@ router.use(function (req, res, next) {
         isAuthToken = false;
     }
 
+    next();
+    return;
+
     // 验证 token
-    if( isAuthToken && !authToken(req.get("X-Token")) ){
-        return res.json({
-            code: 50012,
-            success: false,
-            data: {
-                'ip': getClientIp(req),
-                'time': Date.now()
-            },
-            message: "身份验证失败, 请重新登陆!"
-        })
-    }else{
-        next();
-    }
+    // if( isAuthToken && !authToken(req.get("X-Token")) ){
+    //     return res.json({
+    //         code: -1,
+    //         success: false,
+    //         data: {
+    //             'ip': getClientIp(req),
+    //             'time': Date.now()
+    //         },
+    //         message: "身份验证失败, 请重新登陆!"
+    //     })
+    // }else{
+    //     next();
+    // }
 });
 
 module.exports = router;

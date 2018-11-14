@@ -10,18 +10,24 @@ var app = express();
 app.all('/api/*', function(req, res, next) {
 
 	var reqOrigin = req.headers.origin;
+	// isOriginAllowed(reqOrigin, config.allowOrigin)
 
-	if( isOriginAllowed(reqOrigin, config.allowOrigin) ) {
-	    res.header("Access-Control-Allow-Origin", reqOrigin);
-	    res.header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Authorization, Accept, X-Requested-With, X-Token");
+	if( true ) {
+	    res.header("Access-Control-Allow-Origin", '*');
+	    res.header("Access-Control-Allow-Headers", "Content-Type, Cache-Control, Content-Length, Authorization, Accept, X-Requested-With, X-Token");
 	    res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
 	    res.header("Content-Type", "application/json;charset=utf-8");
+	    res.header("Cache-Control", "no-cache");
+
+	    // OPTIONS 直接返回
+	    // if( req.method == "OPTIONS" ) res.sendStatus(200);
+
 		next();        
     } else {
         res.send({ 
         	code: -1,
             success: false,
-        	msg: '非法请求!多次恶意请求将会Black IP!' 
+        	message: '非法请求!多次恶意请求将会Black IP!' 
         });
     }
 });
