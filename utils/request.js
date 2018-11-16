@@ -1,14 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var authToken = require('./authToken');
-
-// 获取客户端 IP
-function getClientIp(req) {
-    return req.headers['x-forwarded-for'] ||
-    req.connection.remoteAddress ||
-    req.socket.remoteAddress ||
-    req.connection.socket.remoteAddress;
-};
+var getClientIp = require('./getClientIp');
 
 // 路径白名单
 var whiteList = ['/api/user/login'];

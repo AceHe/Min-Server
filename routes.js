@@ -21,4 +21,7 @@ app.use('/api/admin', articleRoute);
 var blogRoute = require('./app/routes_blog/index');
 app.use('/api/blog', blogRoute);
 
+var blogGuestbook = require('./app/routes_blog/guestbook');
+app.use('/api/blog', blogGuestbook);
+
 module.exports = app;
