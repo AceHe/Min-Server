@@ -57,7 +57,7 @@ router.put('/guestbook',function(req, res){
 		})
 })
 
-// 获取全部留言
+// 获取留言
 router.post('/guestbookbypage',function(req,res){
 
     // 得到一个 eventproxy 实例

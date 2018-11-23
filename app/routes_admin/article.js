@@ -1,12 +1,15 @@
-//控制并发
-var eventproxy = require('eventproxy'); 
+const eventproxy = require('eventproxy');  //控制并发
+const uuidv1 = require('uuid/v1'); 		   //生成随机ID
 
-var Article = require("../module/article");
-var router = require('../../utils/request');
+const Categorized = require("../module/category");
+const Tag = require("../module/tag");
+const Article = require("../module/article");
+const Archive = require("../module/archive");
+const router = require('../../utils/request');
 
 // 获取指定文章
 router.post('/article/id',function(req,res){
-    Article.find({ id: req.body.id },"-_id",function(err, result){
+    Article.findOne({ uuid: req.body.uuid },"-_id",function(err, result){
         res.json({
             code: 0,
             data: result,
@@ -17,34 +20,146 @@ router.post('/article/id',function(req,res){
 })
 
 // 添加新文章
-router.post('/article',function(req,res){
+router.post('/article/create',function(req,res){
 
 	let newArticle = {
-		"id": Date.parse(new Date)/1000,
-	    "title": req.body.artic.title,
-	    "markdown": req.body.artic.markdown,
-	    "render": req.body.artic.render,
-	    "category": req.body.artic.category,
-	    "tags": req.body.artic.tags,
-	    "upload_time": req.body.artic.upload_time,
-	    "read_num": req.body.artic.read_num || 0,
-	    "author": req.body.artic.author || 'hemin',
-	    "top": req.body.artic.top || 'false'
+		'uuid' : uuidv1(),
+		'description' : req.body.description,
+		'renderedContent' : req.body.renderedContent,
+		'markdown' : req.body.markdown,
+		'title' : req.body.title,
+		'thumb' : req.body.thumb,
+		'category' : req.body.category,
+		'tag' : req.body.tag,
+		'meta': {
+			'pvs' : 0,
+			'ups' : 0,
+			'comments': 0
+		},
+		'createdAt' : req.body.createdAt,
+		'updatedAt' : req.body.updatedAt,
+		'source' : req.body.source,
+		'from' : req.body.from,
+		'hots' : req.body.hots
 	};
 
+	let time = new Date( parseInt( newArticle.createdAt ) );
+	let year = time.getFullYear();
+	let month = time.getMonth() + 1;
+	let date = time.getDate();
+
+	Archive.countDocuments({'year': year}, function(err, result){
+		if( result == 0 ){
+			let newArchive = {
+				year: year,
+				months: [{
+					month: month,
+					monthStr: month,
+					articles: [{
+						uuid: newArticle.uuid,
+						createdAt: month + '-' + date,
+						source: newArticle.source,
+						title: newArticle.title,
+					}]
+				}]
+			}
+
+			Archive.create( newArchive, function(err, result){
+				console.log( '归档加一' )
+			})
+		}else{
+			Archive.countDocuments({'year': year,'months.month': month}, function(err, resultMonth){
+				if( resultMonth == 0 ){
+					let newArchive = {
+						month: month,
+						monthStr: month,
+						articles: [{
+							uuid: newArticle.uuid,
+							createdAt: month + '-' + date,
+							source: newArticle.source,
+							title: newArticle.title,
+						}]
+					}
+					Archive.update( {'year': year}, 
+						{ $push:{"months": newArchive } },function(err, res){
+							console.log( '归档月份加一' )
+						})
+				}else {
+					let newArchive = {
+						uuid: newArticle.uuid,
+						createdAt: month + '-' + date,
+						source: newArticle.source,
+						title: newArticle.title,
+					}
+					Archive.update( {'year': year, 'months.month': month}, 
+						{ $push:{"months.$.articles": newArchive } },function(err, res){
+							console.log( '归档日期加一' )
+						})
+				}
+			})
+		}
+	})
+
+	Categorized.update( 
+		{ uuid: req.body.category.uuid },
+		{ $inc: { count: 1} },
+		function(err, result){
+			console.log( '分类加一' )
+		})
+
+	for( let item of req.body.tag ){
+		Tag.update( 
+			{ uuid: item.uuid },
+			{ $inc: { count: 1} },
+			function(err, result){
+				console.log( '标签加一' )
+			})
+	}
+
 	Article.create( newArticle, function(err, result){
-		res.json({
+		return res.json({
 			code: 0,
 			message: '成功发布文章',
 			success: true
 		})
 	})
-
 })
 
 // 删除文章
 router.delete('/article',function(req, res){
-	Article.remove({ id: req.body.id }, function(err, result){
+
+	// 分类计数
+	if( req.body.category.uuid ){
+		Categorized.update( 
+			{ uuid: req.body.category.uuid },
+			{ $inc: { count: -1} },
+			function(err, result){
+				console.log( '分类减一' )
+			})
+	}
+
+	// 标签计数
+	if( req.body.tag.length > 0 ){
+		for( let item of req.body.tag ){
+			Tag.update( 
+				{ uuid: item.uuid },
+				{ $inc: { count: -1} },
+				function(err, result){
+					console.log( '标签减一' )
+				})
+		}
+	}
+
+	let time = new Date( parseInt( req.body.year ) );
+	let year = time.getFullYear();
+	console.log('year',year)
+	// 归档统计
+	Archive.updateOne( {'year': year }, 
+		{ $pull: { "months.articles": { 'uuid': req.body.uuid}} },function(err, res){
+		console.log( '归档日期减一' )
+	})
+
+	Article.deleteMany({ uuid: req.body.uuid }, function(err, result){
 		res.json({
 			code: 0,
 			message: '删除成功',
@@ -55,8 +170,9 @@ router.delete('/article',function(req, res){
 
 // 修改文章
 router.put('/article',function(req, res){
+	console.log( req.body.uuid, req.body )
 	Article.update( 
-		{id: req.body.artic.id}, req.body.artic,
+		{uuid: req.body.uuid}, req.body,
 		function(err, result){
 			res.json({
 				code: 0,
