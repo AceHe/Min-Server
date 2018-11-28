@@ -4,6 +4,8 @@ const Categorized = require("../module/category");
 const Tag = require("../module/tag");
 const Article = require("../module/article");
 const Archive = require("../module/archive");
+const Website = require("../module/website");
+const Friendlink = require("../module/friendlink");
 
 const router = require('../../utils/request');
 
@@ -146,6 +148,35 @@ router.post('/article/uuid',function(req,res){
             success: true
         })
     })
+})
+
+// 获取 网站配置
+router.get('/website',function(req, res){
+
+    Website.findOne({},{ _id: 0, __v: 0 },function(err, result){
+        res.json({
+            code: 0,
+            data: result,
+            success: true
+        })
+    })
+
+})
+
+// 获取 友情链接
+router.get('/friendlink',function(req, res){
+
+   Friendlink.find({},{
+        _id: false,
+        __v: false,
+    },function(err, result){
+        return res.json({
+            code: 0,
+            data: result,
+            success: true
+        })
+    })
+
 })
 
 

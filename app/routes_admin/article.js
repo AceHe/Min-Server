@@ -48,59 +48,43 @@ router.post('/article/create',function(req,res){
 	let month = time.getMonth() + 1;
 	let date = time.getDate();
 
-	Archive.countDocuments({'year': year}, function(err, result){
-		if( result == 0 ){
-			let newArchive = {
-				year: year,
-				months: [{
+	Archive.countDocuments(
+		{ 'year': year, 'month': month},
+		function(err, total){
+			if( total == 0 ){
+				let newArchive = {
+					year: year,
 					month: month,
-					monthStr: month,
+					date: newArticle.createdAt,
 					articles: [{
 						uuid: newArticle.uuid,
 						createdAt: month + '-' + date,
 						source: newArticle.source,
 						title: newArticle.title,
 					}]
-				}]
-			}
-
-			Archive.create( newArchive, function(err, result){
-				console.log( '归档加一' )
-			})
-		}else{
-			Archive.countDocuments({'year': year,'months.month': month}, function(err, resultMonth){
-				if( resultMonth == 0 ){
-					let newArchive = {
-						month: month,
-						monthStr: month,
-						articles: [{
-							uuid: newArticle.uuid,
-							createdAt: month + '-' + date,
-							source: newArticle.source,
-							title: newArticle.title,
-						}]
-					}
-					Archive.update( {'year': year}, 
-						{ $push:{"months": newArchive } },function(err, res){
-							console.log( '归档月份加一' )
-						})
-				}else {
-					let newArchive = {
-						uuid: newArticle.uuid,
-						createdAt: month + '-' + date,
-						source: newArticle.source,
-						title: newArticle.title,
-					}
-					Archive.update( {'year': year, 'months.month': month}, 
-						{ $push:{"months.$.articles": newArchive } },function(err, res){
-							console.log( '归档日期加一' )
-						})
 				}
-			})
+				Archive.create( newArchive, function(err, result){
+					console.log( '归档加一' )
+				})
+			} else {
+				let newArchive = {
+					uuid: newArticle.uuid,
+					createdAt: month + '-' + date,
+					source: newArticle.source,
+					title: newArticle.title
+				}
+				Archive.updateOne( 
+					{ 'year': year, 'month': month},
+					{ '$push': {'articles': newArchive } },
+					function(err, result){
+						console.log( '归档加一' )
+					}
+				)
+			}
 		}
-	})
+	)
 
-	Categorized.update( 
+	Categorized.updateOne( 
 		{ uuid: req.body.category.uuid },
 		{ $inc: { count: 1} },
 		function(err, result){
@@ -108,7 +92,7 @@ router.post('/article/create',function(req,res){
 		})
 
 	for( let item of req.body.tag ){
-		Tag.update( 
+		Tag.updateOne( 
 			{ uuid: item.uuid },
 			{ $inc: { count: 1} },
 			function(err, result){
@@ -130,7 +114,7 @@ router.delete('/article',function(req, res){
 
 	// 分类计数
 	if( req.body.category.uuid ){
-		Categorized.update( 
+		Categorized.updateOne( 
 			{ uuid: req.body.category.uuid },
 			{ $inc: { count: -1} },
 			function(err, result){
@@ -141,7 +125,7 @@ router.delete('/article',function(req, res){
 	// 标签计数
 	if( req.body.tag.length > 0 ){
 		for( let item of req.body.tag ){
-			Tag.update( 
+			Tag.updateOne( 
 				{ uuid: item.uuid },
 				{ $inc: { count: -1} },
 				function(err, result){
@@ -150,16 +134,17 @@ router.delete('/article',function(req, res){
 		}
 	}
 
-	let time = new Date( parseInt( req.body.year ) );
+	let time = new Date( parseInt( req.body.time ) );
 	let year = time.getFullYear();
-	console.log('year',year)
+	let month = time.getMonth() + 1;
+	console.log('year', year, month, req.body.uuid)
 	// 归档统计
-	Archive.updateOne( {'year': year }, 
-		{ $pull: { "months.articles": { 'uuid': req.body.uuid}} },function(err, res){
+	Archive.updateOne( {'year': year, 'months.month': month}, 
+		{ $pull: {'months.$.articles': { 'uuid': req.body.uuid}} },function(err, res){
 		console.log( '归档日期减一' )
 	})
 
-	Article.deleteMany({ uuid: req.body.uuid }, function(err, result){
+	Article.deleteOne({ uuid: req.body.uuid }, function(err, result){
 		res.json({
 			code: 0,
 			message: '删除成功',
@@ -171,7 +156,7 @@ router.delete('/article',function(req, res){
 // 修改文章
 router.put('/article',function(req, res){
 	console.log( req.body.uuid, req.body )
-	Article.update( 
+	Article.updateOne( 
 		{uuid: req.body.uuid}, req.body,
 		function(err, result){
 			res.json({
