@@ -3,7 +3,6 @@ const eventproxy = require('eventproxy');  //控制并发
 const Categorized = require("../module/category");
 const Tag = require("../module/tag");
 const Article = require("../module/article");
-const Archive = require("../module/archive");
 const Website = require("../module/website");
 const Friendlink = require("../module/friendlink");
 
@@ -62,9 +61,12 @@ router.get('/archive',function(req,res){
 		ep.emit('total_event', result);
 	})
 
-	Archive.find({},{
-		_id: 0, 
-		__v: 0,
+	Article.find({},{
+        _id: 0,
+        uuid: 1,
+        title: 1,
+        createdAt: 1,
+		source: 1
     },function(err, result){
     	ep.emit('data_event', result);
     })
@@ -95,6 +97,9 @@ router.post('/article',function(req,res){
 	else if( req.body.key === 'tag' ){
 		findObj = {'tag.name': req.body.val};
 	}
+    else if( req.body.key === 'search' ){
+        findObj = {'title': new RegExp(req.body.val, 'i')};
+    }
 
 	// 获得总条目数
 	Article.countDocuments(findObj).exec(function(err, result){

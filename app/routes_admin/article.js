@@ -4,7 +4,6 @@ const uuidv1 = require('uuid/v1'); 		   //生成随机ID
 const Categorized = require("../module/category");
 const Tag = require("../module/tag");
 const Article = require("../module/article");
-const Archive = require("../module/archive");
 const router = require('../../utils/request');
 
 // 获取指定文章
@@ -42,47 +41,6 @@ router.post('/article/create',function(req,res){
 		'from' : req.body.from,
 		'hots' : req.body.hots
 	};
-
-	let time = new Date( parseInt( newArticle.createdAt ) );
-	let year = time.getFullYear();
-	let month = time.getMonth() + 1;
-	let date = time.getDate();
-
-	Archive.countDocuments(
-		{ 'year': year, 'month': month},
-		function(err, total){
-			if( total == 0 ){
-				let newArchive = {
-					year: year,
-					month: month,
-					date: newArticle.createdAt,
-					articles: [{
-						uuid: newArticle.uuid,
-						createdAt: month + '-' + date,
-						source: newArticle.source,
-						title: newArticle.title,
-					}]
-				}
-				Archive.create( newArchive, function(err, result){
-					console.log( '归档加一' )
-				})
-			} else {
-				let newArchive = {
-					uuid: newArticle.uuid,
-					createdAt: month + '-' + date,
-					source: newArticle.source,
-					title: newArticle.title
-				}
-				Archive.updateOne( 
-					{ 'year': year, 'month': month},
-					{ '$push': {'articles': newArchive } },
-					function(err, result){
-						console.log( '归档加一' )
-					}
-				)
-			}
-		}
-	)
 
 	Categorized.updateOne( 
 		{ uuid: req.body.category.uuid },
@@ -133,16 +91,6 @@ router.delete('/article',function(req, res){
 				})
 		}
 	}
-
-	let time = new Date( parseInt( req.body.time ) );
-	let year = time.getFullYear();
-	let month = time.getMonth() + 1;
-	console.log('year', year, month, req.body.uuid)
-	// 归档统计
-	Archive.updateOne( {'year': year, 'months.month': month}, 
-		{ $pull: {'months.$.articles': { 'uuid': req.body.uuid}} },function(err, res){
-		console.log( '归档日期减一' )
-	})
 
 	Article.deleteOne({ uuid: req.body.uuid }, function(err, result){
 		res.json({
