@@ -3,6 +3,7 @@ const eventproxy = require('eventproxy');  //控制并发
 const Categorized = require("../module/category");
 const Tag = require("../module/tag");
 const Article = require("../module/article");
+const Comment = require("../module/comment");
 const Website = require("../module/website");
 const Friendlink = require("../module/friendlink");
 
@@ -83,6 +84,35 @@ router.get('/archive',function(req,res){
 	});
 })
 
+// 获取 网站配置
+router.get('/website',function(req, res){
+
+    Website.findOne({},{ _id: 0, __v: 0 },function(err, result){
+        res.json({
+            code: 0,
+            data: result,
+            success: true
+        })
+    })
+
+})
+
+// 获取 友情链接
+router.get('/friendlink',function(req, res){
+
+   Friendlink.find({},{
+        _id: false,
+        __v: false,
+    },function(err, result){
+        return res.json({
+            code: 0,
+            data: result,
+            success: true
+        })
+    })
+
+})
+
 // 获取文章列表
 router.post('/article',function(req,res){
 
@@ -142,46 +172,41 @@ router.post('/article/uuid',function(req,res){
 			console.log( '阅读加一' )
 		})
 
-	Article.findOne({ uuid: req.body.uuid },{
-        _id: false,
-        __v: false,
+    var ep = new eventproxy();
+
+    Article.findOne( { uuid: req.body.uuid } ).exec(function(err, result){
+        ep.emit('article_event', result);
     })
-    .exec(function(err, result){
+
+    Comment.find( { articleUuid: req.body.uuid } ).exec(function(err, result){
+        ep.emit('comment_event', result);
+    })
+
+    // 全部并发完成后，统一处理
+    ep.all('article_event', 'comment_event', function (article, comment) {
+        let result = article;
+        result.comments = comment;
+
         res.json({
             code: 0,
             data: result,
             success: true
         })
-    })
+    });
 })
 
-// 获取 网站配置
-router.get('/website',function(req, res){
-
-    Website.findOne({},{ _id: 0, __v: 0 },function(err, result){
-        res.json({
-            code: 0,
-            data: result,
-            success: true
+// 点赞文章
+router.post('/article/like',function(req,res){
+    Article.update( 
+        { uuid: req.body.uuid },
+        { $inc: { 'meta.ups': 1} },
+        function(err, result){
+            res.json({
+                code: 0,
+                message: '操作成功',
+                success: true
+            })
         })
-    })
-
-})
-
-// 获取 友情链接
-router.get('/friendlink',function(req, res){
-
-   Friendlink.find({},{
-        _id: false,
-        __v: false,
-    },function(err, result){
-        return res.json({
-            code: 0,
-            data: result,
-            success: true
-        })
-    })
-
 })
 
 

@@ -4,6 +4,7 @@ const uuidv1 = require('uuid/v1'); 		   //生成随机ID
 const Categorized = require("../module/category");
 const Tag = require("../module/tag");
 const Article = require("../module/article");
+
 const router = require('../../utils/request');
 
 // 获取指定文章
@@ -103,7 +104,6 @@ router.delete('/article',function(req, res){
 
 // 修改文章
 router.put('/article',function(req, res){
-	console.log( req.body.uuid, req.body )
 	Article.updateOne( 
 		{uuid: req.body.uuid}, req.body,
 		function(err, result){

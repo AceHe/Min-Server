@@ -1,7 +1,7 @@
 var mongoose = require('mongoose'); //引入mongoose依赖
 var Schema = mongoose.Schema; 		//mongoose的一切都是以Schema开始的
 
-// 使用modules.exports导出Categorized模块
+// 使用modules.exports导出Article模块
 module.exports = mongoose.model('article',new Schema({
     uuid: String,
     description: String,
@@ -28,5 +28,6 @@ module.exports = mongoose.model('article',new Schema({
     updatedAt: String,
     source: Number,
     from: String,
-    hots: Boolean
+    hots: Boolean,
+    comments: Array
 }))

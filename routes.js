@@ -34,4 +34,7 @@ app.use('/api/blog', blogRoute);
 var blogGuestbook = require('./app/routes_blog/guestbook');
 app.use('/api/blog', blogGuestbook);
 
+var blogComments = require('./app/routes_blog/comments');
+app.use('/api/blog', blogComments);
+
 module.exports = app;
