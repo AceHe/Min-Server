@@ -10,6 +10,8 @@ var getClientIp = require('../../utils/getClientIp');
 // 添加留言
 router.post('/guestbook',function(req,res){
 
+	// http://ip.taobao.com/service/getIpInfo2.php ip=""
+
 	let newComment = {
 		uuid: uuidv1(),
 		person: {

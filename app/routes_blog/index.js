@@ -74,7 +74,7 @@ router.get('/archive',function(req,res){
 
     // 全部并发完成后，统一处理
 	ep.all('total_event', 'data_event', function (total, data) {
-		res.json({
+		return res.json({
             code: 0,
             data: data,
             total: total,
@@ -88,7 +88,7 @@ router.get('/archive',function(req,res){
 router.get('/website',function(req, res){
 
     Website.findOne({},{ _id: 0, __v: 0 },function(err, result){
-        res.json({
+        return res.json({
             code: 0,
             data: result,
             success: true
@@ -152,7 +152,7 @@ router.post('/article',function(req,res){
 
     // 全部并发完成后，统一处理
 	ep.all('total_event', 'data_event', function (total, data) {
-		res.json({
+		return res.json({
             code: 0,
             data: data,
             total: total,
@@ -178,7 +178,10 @@ router.post('/article/uuid',function(req,res){
         ep.emit('article_event', result);
     })
 
-    Comment.find( { articleUuid: req.body.uuid } ).exec(function(err, result){
+    Comment.find( { articleUuid: req.body.uuid } )
+        // .sort({'_id':-1})
+        .sort({'person.ups':-1, '_id':-1})
+        .exec(function(err, result){
         ep.emit('comment_event', result);
     })
 
@@ -187,7 +190,7 @@ router.post('/article/uuid',function(req,res){
         let result = article;
         result.comments = comment;
 
-        res.json({
+        return res.json({
             code: 0,
             data: result,
             success: true
@@ -201,7 +204,7 @@ router.post('/article/like',function(req,res){
         { uuid: req.body.uuid },
         { $inc: { 'meta.ups': 1} },
         function(err, result){
-            res.json({
+            return res.json({
                 code: 0,
                 message: '操作成功',
                 success: true
