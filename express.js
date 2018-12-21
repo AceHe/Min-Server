@@ -10,9 +10,9 @@ var app = express();
 app.all('/api/*', function(req, res, next) {
 
 	var reqOrigin = req.headers.origin;
-	console.log('reqOrigin', reqOrigin  )
+	console.log('reqOrigin', req.headers )
 
-	if( isOriginAllowed(reqOrigin, config.allowOrigin) ) {
+	if( isOriginAllowed(reqOrigin, config.allowOrigin) || reqOrigin == undefined ) {
 	    res.header("Access-Control-Allow-Origin", reqOrigin);
 	    res.header("Access-Control-Allow-Headers", "Content-Type, Cache-Control, Content-Length, Authorization, Accept, X-Requested-With, X-Token");
 	    res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
