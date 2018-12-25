@@ -1,5 +1,5 @@
 ### 博客地址
-[小何才露尖尖角](https://www.hemin.vip)
+[小何才露尖尖角](http://www.hemin.vip)
 
 ### 博客接口开发
 - [Min-Blog](https://github.com/AceHe/Min-Blog)(开发中)
@@ -12,7 +12,7 @@
 - **express**: nodejs框架
 - **mongoose**: 用来方便的和mongodb交互
 - **body-parser**: 方便我们从post请求中解析参数
-- **morgan**: 把请求信息打印在控
+- **morgan**: 打印请求信息
 - **jsonwebtoken**: 用来生成和确认token数据制台
 
 ### 使用说明
