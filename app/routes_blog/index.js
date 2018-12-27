@@ -165,7 +165,7 @@ router.post('/article',function(req,res){
 // 获取文章内容--by uuid
 router.post('/article/uuid',function(req,res){
 
-	Article.update( 
+	Article.updateOne( 
 		{ uuid: req.body.uuid },
 		{ $inc: { 'meta.pvs': 1} },
 		function(err, result){
@@ -174,14 +174,26 @@ router.post('/article/uuid',function(req,res){
 
     var ep = new eventproxy();
 
-    Article.findOne( { uuid: req.body.uuid } ).exec(function(err, result){
+    Article.findOne( { uuid: req.body.uuid } ,{
+        '_id': 0, 
+        '__v': 0,
+        'markdown': 0
+    })
+    .exec(function(err, result){
         ep.emit('article_event', result);
     })
 
-    Comment.find( { articleUuid: req.body.uuid } )
-        // .sort({'_id':-1})
-        .sort({'person.ups':-1, '_id':-1})
-        .exec(function(err, result){
+    Comment.find( { articleUuid: req.body.uuid },{
+        '_id': 0, 
+        '__v': 0,
+        'person.ip': 0,
+        'person.email': 0,
+        'reply._id': 0, 
+        'reply.person.ip': 0,
+        'reply.person.email': 0
+    })
+    .sort({'_id':-1})
+    .exec(function(err, result){
         ep.emit('comment_event', result);
     })
 
@@ -200,7 +212,7 @@ router.post('/article/uuid',function(req,res){
 
 // 点赞文章
 router.post('/article/like',function(req,res){
-    Article.update( 
+    Article.updateOne( 
         { uuid: req.body.uuid },
         { $inc: { 'meta.ups': 1} },
         function(err, result){

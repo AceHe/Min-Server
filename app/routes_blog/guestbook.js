@@ -10,8 +10,6 @@ var getClientIp = require('../../utils/getClientIp');
 // 添加留言
 router.post('/guestbook',function(req,res){
 
-	// http://ip.taobao.com/service/getIpInfo2.php ip=""
-
 	let newComment = {
 		uuid: uuidv1(),
 		person: {
@@ -62,13 +60,18 @@ router.post('/guestbookbypage',function(req,res){
 	})
 
 	// 分页查询
-	Guestbook.find({},{ _id: 0, __v: 0 })
-		.skip((req.body.page - 1) * req.body.limt)
-        .limit(req.body.limt)
-        .sort({'_id':-1})
-        .exec(function(err, result){
-        	ep.emit('data_event', result);
-        })
+	Guestbook.find({},{ 
+		_id: 0, 
+		__v: 0,
+		'person.ip': 0,
+        'person.email': 0
+	})
+	.skip((req.body.page - 1) * req.body.limt)
+    .limit(req.body.limt)
+    .sort({'_id':-1})
+    .exec(function(err, result){
+    	ep.emit('data_event', result);
+    })
 
     // 全部并发完成后，统一处理
 	ep.all('total_event', 'data_event', function (total, data) {

@@ -10,7 +10,6 @@ var app = express();
 app.all('/api/*', function(req, res, next) {
 
 	var reqOrigin = req.headers.origin;
-	console.log('reqOrigin', req.headers )
 
 	if( isOriginAllowed(reqOrigin, config.allowOrigin) || reqOrigin == undefined ) {
 	    res.header("Access-Control-Allow-Origin", reqOrigin);
